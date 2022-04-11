@@ -80,3 +80,11 @@ export interface FileHandlerOptions {
   // TODO
   transpose?: any;
 }
+
+export interface MockVariantOptions {
+  mockPort?: number;
+  // fixture: string,
+  routeId: string;
+  variantId: string;
+  mezzoSessionId?: string;
+}

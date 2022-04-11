@@ -1,16 +1,23 @@
 import { createServer, Server } from 'http';
 import logger from '../utils/logger';
+import axios from 'axios';
 
 import { CommonUtils } from '../utils/common-utils';
-import { MiddlewareFn, RouteData, ServerOptions } from '../types';
+import {
+  MiddlewareFn,
+  MockVariantOptions,
+  RouteData,
+  ServerOptions,
+} from '../types';
 import * as express from 'express';
 import { Route } from '../models/route-model';
 import { addAdminEndpoints, addAdminStaticSite } from './admin';
 import { findRouteIndexById } from '../utils/routeMatchingUtils';
 import * as fsDefault from 'fs';
 import { SessionState } from '../models/sessionState';
+import { MEZZO_API_PATH } from '../utils/constants';
 
-class Mezzo {
+export class Mezzo {
   public userRoutes: Route[] = [];
   public sessionState: SessionState;
   private server: Server;
@@ -38,7 +45,7 @@ class Mezzo {
   public start = async (options?: ServerOptions): Promise<Server> => {
     this.app = express();
     this._resetRouteState();
-    addAdminEndpoints(this.app);
+    addAdminEndpoints(this.app, this);
     addAdminStaticSite(this.app, options);
     this.fs = options?.fsOverride ?? fsDefault;
     this.mockedDirectory = options.mockedDirectory;
@@ -96,32 +103,47 @@ class Mezzo {
     return myRoute;
   };
 
-  public setMockVariant = (routeId: string, variantId: string) => {
+  // https://github.com/sgoff0/midway/blob/6614a6a91d3060951e99326c68333ebf78563e8c/src/utils/common-utils.ts#L318-L356
+  public setMockVariant = async (options: MockVariantOptions) => {
+    const url =
+      'http://localhost:' +
+      options.mockPort +
+      MEZZO_API_PATH +
+      '/route/' +
+      encodeURIComponent(options.routeId);
+
+    const response = await axios.post(url, {
+      variant: options.variantId,
+    });
+
+    // axios.post()
     // const index = findRouteIndex(method, path, this.userRoutes);
-    const index = findRouteIndexById(routeId, this.userRoutes);
-    const foundRoute = this.userRoutes[index];
-    // console.log('Inside set mock variant', foundRoute);
-    if (foundRoute) {
-      // TODO log if variant cannot be set
+    // const index = findRouteIndexById(routeId, this.userRoutes);
+    // const foundRoute = this.userRoutes[index];
+    // // console.log('Inside set mock variant', foundRoute);
+    // if (foundRoute) {
+    //   // TODO log if variant cannot be set
 
-      // this is not actually updating entry in global state
-      const updatedItem = foundRoute.setVariant(variantId);
+    //   // this is not actually updating entry in global state
+    //   const updatedItem = foundRoute.setVariant(variantId);
 
-      // So make sure to update hte array item
-      this.userRoutes[index] = updatedItem;
+    //   // So make sure to update hte array item
+    //   this.userRoutes[index] = updatedItem;
 
-      // logger.info(`Set variant complete: ${foundRoute.activeVariant}`);
-    } else {
-      console.warn(
-        `Could not find route for ${routeId} to set variant ${variantId}`
-      );
-    }
+    //   // logger.info(`Set variant complete: ${foundRoute.activeVariant}`);
+    // } else {
+    //   console.warn(
+    //     `Could not find route for ${routeId} to set variant ${variantId}`
+    //   );
+    // }
   };
 
-  public setMockVariantForSession = (
+  public setMockVariantForSession = async (
     sessionId: string,
     payload: Record<string, string>
   ) => {
+    // TODO make API call
+
     this.sessionState.setSessionVariantStateByKey(sessionId, payload);
   };
 }

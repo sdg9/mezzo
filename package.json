@@ -10,6 +10,7 @@
   },
   "private": true,
   "dependencies": {
+    "axios": "^0.26.1",
     "core-js": "^3.6.5",
     "express": "4.17.2",
     "react": "17.0.2",

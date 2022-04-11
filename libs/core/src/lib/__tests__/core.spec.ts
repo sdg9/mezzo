@@ -105,7 +105,7 @@ describe('mezzo', () => {
         expect(res1.status).toBe(200);
         expect(res1.body.variant).toBe('default');
       });
-      it('should prefer request variant header over session and route state', async () => {
+      it.only('should prefer request variant header over session and route state', async () => {
         const sessionId = '123';
         mezzo.setMockVariantForSession(sessionId, {
           [routeId]: 'v2',
