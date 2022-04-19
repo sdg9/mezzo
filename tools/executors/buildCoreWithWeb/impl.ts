@@ -38,7 +38,9 @@ export default async function echoExecutor(
 
   const buildClient = await runExecutor(
     { project: 'admin-web', target: 'build' },
-    {},
+    {
+      baseHref: 'mezzo',
+    },
     context
   );
 
