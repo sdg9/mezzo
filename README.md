@@ -15,6 +15,7 @@ This project was generated using [Nx](https://nx.dev).
 - `nx prepare core`
   - Injects admin web output into core.
   - While not wired up at some point this way mezzo can serve the site while also serving the mock API
+  - Be sure any changes are built before you run `npm build:executor` aka `npx tsc tools/executors/buildCoreWithWeb/impl`
 
 # Publishing
 

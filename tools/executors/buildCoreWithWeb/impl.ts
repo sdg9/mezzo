@@ -35,12 +35,11 @@ export default async function echoExecutor(
   context: ExecutorContext
 ): Promise<{ success: boolean }> {
   console.log('Running executor 1');
+  console.log('Options: ', options);
 
   const buildClient = await runExecutor(
     { project: 'admin-web', target: 'build' },
-    {
-      baseHref: 'mezzo',
-    },
+    options,
     context
   );
 

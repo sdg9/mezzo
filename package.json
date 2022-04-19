@@ -6,6 +6,7 @@
     "start": "nx serve",
     "dev": "env NODE_ENV=development nx run-many --target=serve --projects=core,admin-web",
     "build": "nx run-many --target=build --projects=core,admin-web",
+    "build:executor": "npx tsc tools/executors/buildCoreWithWeb/impl",
     "test": "nx test",
     "clean": "rm -rf node_modules/ && npm install",
     "lintAll": "nx run-many --all --target=lint --parallel",

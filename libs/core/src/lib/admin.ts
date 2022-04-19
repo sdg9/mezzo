@@ -7,7 +7,7 @@ import { Mezzo } from './core';
 import * as path from 'path';
 
 export const addAdminEndpoints = (app: express.Express, mezzo: Mezzo) => {
-  app.get(`/mezzo/routes`, (req, res) => {
+  app.get(`/_admin/routes`, (req, res) => {
     res.json(mezzo.serialiazeRoutes());
   });
 
@@ -57,9 +57,9 @@ export const addAdminEndpoints = (app: express.Express, mezzo: Mezzo) => {
     res.status(200).json({ message: 'Hello world from api' });
   });
 
-  app.get(`/_admin`, (req, res) => {
-    res.redirect(`/mezzo`);
-  });
+  // app.get(`/_admin`, (req, res) => {
+  //   res.redirect(`/mezzo`);
+  // });
 
   app.get(`/mezzo-data`, (req, res) => {
     // TODO: format and return data

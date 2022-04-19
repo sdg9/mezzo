@@ -65,6 +65,7 @@ const RouteItem = ({ route }: Props) => {
                   openInNewTab(route.path.toString());
                 } else {
                   // If not a POST, currently assumes response is always JSON, fetch via API then open
+                  console.log('Route path: ', route.path.toString());
                   fetch(route.path.toString(), {
                     method: route.method,
                     headers: {
@@ -99,7 +100,12 @@ const RouteItem = ({ route }: Props) => {
           >
             <Button
               onClick={() => {
-                fetch(`mezzo/api/route/${encodeURIComponent(route.id)}`, {
+                // if run:dev don't deal with prefix
+                // if built into core, and core index.html is at /mezzo, we need to get to root
+                console.log(
+                  `../_admin/api/route/${encodeURIComponent(route.id)}`
+                );
+                fetch(`../_admin/api/route/${encodeURIComponent(route.id)}`, {
                   method: 'POST',
                   headers: {
                     'Content-Type': 'application/json',

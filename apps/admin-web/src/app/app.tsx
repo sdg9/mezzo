@@ -17,7 +17,7 @@ export const App = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await fetch('/mezzo/routes');
+      const response = await fetch('/_admin/routes');
       const data = await response.json();
       setRoutes(data.routes);
     };

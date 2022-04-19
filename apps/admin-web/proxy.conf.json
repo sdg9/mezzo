@@ -3,11 +3,11 @@
     "target": "http://localhost:8000",
     "secure": false
   },
-  "/mezzo/routes": {
+  "/_admin/routes": {
     "target": "http://localhost:8000",
     "secure": false
   },
-  "/mezzo/api/*": {
+  "/_admin/api/*": {
     "target": "http://localhost:8000",
     "secure": false
   }
