@@ -17,6 +17,7 @@ import GitHubIcon from '@mui/icons-material/GitHub';
 import HelpIcon from '@mui/icons-material/Help';
 import { openInNewTab } from '../utils/urlHelper';
 import { Link, useNavigate } from 'react-router-dom';
+import * as path from 'path';
 
 type Props = {
   name: string;
@@ -25,16 +26,20 @@ type Props = {
 export default function Headers(props: Props) {
   const navigate = useNavigate();
 
+  // const basePath = process
+  // TODO refactor
+  const prefix = process.env['NODE_ENV'] === 'production' ? '/mezzo/' : '/';
+
   // TODO fire API call to server to get enabled capabilities?  This way if users don't care about recording they don't see it
   const navItems = [
     {
       label: 'Home',
-      path: `/`,
+      path: prefix,
       isLink: true,
     },
     {
       label: 'Record',
-      path: `/record`,
+      path: `${prefix}record`,
       isLink: true,
     },
     // {

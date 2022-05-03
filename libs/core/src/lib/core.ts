@@ -1,4 +1,5 @@
 import { createServer, Server } from 'http';
+import * as WebSocket from 'ws';
 import logger, { setLogLevel } from '../utils/logger';
 import axios from 'axios';
 
@@ -36,12 +37,14 @@ import {
 } from '@caribou-crew/mezzo-interfaces';
 import { addRedirect } from './redirect';
 import curry from '../utils/curry';
+import recordingServer from './recordingServer';
 
 export class Mezzo {
   public userRoutes: Route[] = [];
   public globalVariants: VariantInputData[] = [];
   public sessionState: SessionState;
   private server: Server;
+  private websocketServer: WebSocket.Server;
   private app: express.Express;
   private fs;
   public util: CommonUtils;
@@ -101,11 +104,17 @@ export class Mezzo {
       ...(options?.variantCategories || []),
     ];
 
+    // Initialize websocket server
+    this.server = createServer(this.app);
+
+    this.websocketServer = recordingServer(this.server);
+
     return new Promise((resolve) => {
-      this.server = createServer(this.app).listen(this.port, () => {
+      this.server.listen(this.port, () => {
         logger.debug(
           `***************Server running on port ${this.port} ***************`
         );
+
         resolve(this.server);
       });
     });
@@ -119,6 +128,7 @@ export class Mezzo {
           '***************Stopping Mezzo mocking server ***************'
         );
         serverToStop.close(resolve);
+        this.websocketServer?.close();
         this.app = undefined;
       } else {
         logger.warn(
