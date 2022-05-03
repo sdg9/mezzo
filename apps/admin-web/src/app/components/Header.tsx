@@ -16,23 +16,37 @@ import { ReactComponent as Logo } from '../../assets/logo.svg';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import HelpIcon from '@mui/icons-material/Help';
 import { openInNewTab } from '../utils/urlHelper';
+import { Link, useNavigate } from 'react-router-dom';
 
 type Props = {
   name: string;
 };
 
 export default function Headers(props: Props) {
+  const navigate = useNavigate();
+
+  // TODO fire API call to server to get enabled capabilities?  This way if users don't care about recording they don't see it
   const navItems = [
     {
-      label: 'Reset State',
-      path: `${MEZZO_API_PATH}/routeVariants`,
-      method: 'DELETE',
+      label: 'Home',
+      path: `/`,
+      isLink: true,
     },
     {
-      label: 'Reset Route Settings',
-      path: 'https://github.com/caribou-crew/mezzo',
-      method: 'GET',
+      label: 'Record',
+      path: `/record`,
+      isLink: true,
     },
+    // {
+    //   label: 'Reset State',
+    //   path: `${MEZZO_API_PATH}/routeVariants`,
+    //   method: 'DELETE',
+    // },
+    // {
+    //   label: 'Reset Route Settings',
+    //   path: 'https://github.com/caribou-crew/mezzo',
+    //   method: 'GET',
+    // },
   ];
 
   const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
@@ -44,9 +58,12 @@ export default function Headers(props: Props) {
   const handleCloseNavMenu = (navItem?: {
     label: string;
     path: string;
-    method: string;
+    method?: string;
+    isLink?: boolean;
   }) => {
-    if (navItem) {
+    if (navItem?.isLink) {
+      navigate(navItem?.path);
+    } else if (navItem?.path && navItem?.method) {
       fetch(navItem.path, { method: navItem.method });
       // TODO refresh UI now that server has reset the state of all variants back to default
     }
@@ -99,6 +116,7 @@ export default function Headers(props: Props) {
                 display: { xs: 'block', md: 'none' },
               }}
             >
+              {/* Hamburger menu */}
               {navItems.map((navItem) => (
                 <MenuItem
                   key={navItem.label}
@@ -118,6 +136,7 @@ export default function Headers(props: Props) {
             <Logo title={props.name} style={{ width: 100 }} fill="white" />
           </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+            {/* Nav bar */}
             {navItems.map((navItem) => (
               <Button
                 key={navItem.label}

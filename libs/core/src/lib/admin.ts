@@ -83,8 +83,15 @@ export const addAdminStaticSite = (
   app: express.Express,
   options?: MezzoStartOptions
 ) => {
+  const rootAdmin = `/${options?.adminEndpoint ?? 'mezzo'}`;
+
+  console.log('Starting at endpoint: ', rootAdmin);
+  app.use(rootAdmin, express.static(path.join(__dirname, '..', 'public')));
+
+  // With react routing on client side we need to call out routes if we also want to support server side
+  // Alternatively we could use something like hash based routing
   app.use(
-    `/${options?.adminEndpoint ?? 'mezzo'}`,
+    `${rootAdmin}/record`,
     express.static(path.join(__dirname, '..', 'public'))
   );
 };
