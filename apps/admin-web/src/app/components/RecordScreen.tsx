@@ -1,14 +1,44 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useReducer, useRef, useState } from 'react';
 
 import { Container } from '@mui/material';
+import { DEFAULT_PORT } from '@caribou-crew/mezzo-constants';
 
 type Props = {};
 
+interface MyState {
+  messages: string[];
+}
+
+interface MyAction {
+  type: string;
+  payload: string;
+}
+function reducer(state: MyState, action: MyAction) {
+  console.log('In reducer', action);
+  console.log('My state', state);
+  switch (action.type) {
+    case 'add':
+      // return { count: state.count + 1 };
+      return {
+        ...state,
+        messages: [...state.messages, action.payload],
+      };
+    // case 'decrement':
+    //   return {count: state.count - 1};
+    default:
+      throw new Error();
+  }
+}
+
 export default function RecordScreen(props: Props) {
   const [isPaused, setPause] = useState(false);
+  // const [messages, setItems] = useState<string[]>([]);
+  const [state, dispatch] = useReducer(reducer, { messages: [] });
 
-  // TODO update to proper domain
-  const ws = useRef<WebSocket>(new WebSocket('ws://localhost:8000/'));
+  // TODO update to proper domain and port
+  const ws = useRef<WebSocket>(
+    new WebSocket(`ws://localhost:${DEFAULT_PORT}/`)
+  );
 
   // Connect/disconnect on component mount/unmount
   useEffect(() => {
@@ -24,11 +54,13 @@ export default function RecordScreen(props: Props) {
   useEffect(() => {
     if (!ws.current) return;
 
-    ws.current.onmessage = (e: any) => {
+    ws.current.onmessage = (e: MessageEvent<string>) => {
       if (isPaused) return;
       const message = e.data;
       // const message = JSON.parse(e.data);
       console.log('e', message);
+      // setItems([...messages, message]);
+      dispatch({ type: 'add', payload: message });
 
       // TODO each message will be new network request or response, think charles
       // Update component state as responses are coming in
@@ -38,7 +70,7 @@ export default function RecordScreen(props: Props) {
       // Consider maintaining state on node backend
       // First load/ws connection will pull all responses, either via socket or could be rest endpointo
     };
-  }, [isPaused]);
+  }, [isPaused, dispatch]);
 
   return (
     <Container component="main" maxWidth="lg">
@@ -46,6 +78,15 @@ export default function RecordScreen(props: Props) {
       <button onClick={() => setPause(!isPaused)}>
         {isPaused ? 'Resume' : 'Pause'}
       </button>
+      Total items: {state.messages.length}
+      Redux:
+      {state.messages.map((i, idx) => {
+        return <div key={idx}>{i}</div>;
+      })}
+      {/* Comopnent state:
+      {messages.map((i, idx) => {
+        return <div key={idx}>{i}</div>;
+      })} */}
     </Container>
   );
 }
