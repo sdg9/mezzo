@@ -5,7 +5,6 @@ import axios from 'axios';
 
 import { CommonUtils } from '../utils/common-utils';
 import {
-  ServerConnectionOptions,
   MiddlewareFn,
   RouteInputData,
   MezzoStartOptions,
@@ -31,6 +30,7 @@ import {
 import * as bodyParser from 'body-parser';
 import {
   RouteItemType,
+  ServerConnectionOptions,
   SetRouteVariant,
   VariantCategory,
   VariantItem,

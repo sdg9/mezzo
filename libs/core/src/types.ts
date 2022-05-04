@@ -59,15 +59,6 @@ export interface FileHandlerOptions {
 }
 
 /**
- * Options used for set/update/reset mock variant util calls
- */
-export interface ServerConnectionOptions {
-  useHttps?: boolean;
-  hostname?: string;
-  port?: number;
-}
-
-/**
  * Express middleware function signature
  */
 export type MiddlewareFn = (

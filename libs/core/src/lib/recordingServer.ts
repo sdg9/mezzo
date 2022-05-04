@@ -15,7 +15,7 @@ import {
 //   }, 1000);
 // }
 const requests = [];
-const resopnse = [];
+const responses = [];
 const data = [];
 
 function setupAPI(app: express.Express, wss: WebSocket.Server) {
@@ -25,6 +25,7 @@ function setupAPI(app: express.Express, wss: WebSocket.Server) {
     // ws.send('Got request');
     console.log('Broadcasting Req...');
     // wss.broadcast('Got request');
+    requests.push(req.body);
     res.sendStatus(201);
   });
   app.post(MEZZO_API_POST_RECORD_RESPONSE, (req, res) => {
@@ -32,14 +33,18 @@ function setupAPI(app: express.Express, wss: WebSocket.Server) {
     // console.log('Req: ', req);
     // ws.send(JSON.stringify(req));
     // ws.send('Got response');
+    responses.push(req.body);
     res.sendStatus(201);
   });
-  app.post(MEZZO_API_GET_RECORDINGS, (req, res) => {
+  app.get(MEZZO_API_GET_RECORDINGS, (req, res) => {
     console.log('Broadcasting Res...');
     // console.log('Req: ', req);
     // ws.send(JSON.stringify(req));
     // ws.send('Got response');
-    res.send(data);
+    res.send({
+      requests,
+      responses,
+    });
     // res.sendStatus(200);
   });
 }

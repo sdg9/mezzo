@@ -20,6 +20,9 @@
       ],
       "@caribou-crew/mezzo-constants": ["libs/constants/src/index.ts"],
       "@caribou-crew/mezzo-core": ["libs/core/src/index.ts"],
+      "@caribou-crew/mezzo-intercept-fetch": [
+        "libs/interceptor-fetch/src/index.ts"
+      ],
       "@caribou-crew/mezzo-interfaces": ["libs/interfaces/src/index.ts"]
     },
     "resolveJsonModule": true

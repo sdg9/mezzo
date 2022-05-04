@@ -5,6 +5,7 @@
     "admin-web-e2e": "apps/admin-web-e2e",
     "constants": "libs/constants",
     "core": "libs/core",
+    "interceptor-fetch": "libs/interceptor-fetch",
     "interfaces": "libs/interfaces"
   }
 }
