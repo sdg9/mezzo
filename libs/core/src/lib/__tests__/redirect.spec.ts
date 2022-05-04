@@ -1,11 +1,12 @@
 import * as SuperTestRequest from 'supertest';
 import mezzo from '../core';
+import { redirectPort } from './testPorts';
 
 describe('redirects', () => {
   let request: SuperTestRequest.SuperTest<SuperTestRequest.Test>;
 
   beforeEach(async () => {
-    const port = 3003;
+    const port = redirectPort;
     request = SuperTestRequest(`http://localhost:${port}`);
     await mezzo.start({
       port,

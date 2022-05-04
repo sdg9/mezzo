@@ -1,9 +1,12 @@
 import React, { useEffect, useReducer, useRef, useState } from 'react';
 
-import { Container } from '@mui/material';
+import { Button, Container, Typography } from '@mui/material';
 import { DEFAULT_PORT } from '@caribou-crew/mezzo-constants';
 
-type Props = {};
+import { interceptFetch } from '@caribou-crew/mezzo-intercept-fetch';
+interceptFetch();
+
+type Props = Record<string, never>;
 
 interface MyState {
   messages: string[];
@@ -13,6 +16,7 @@ interface MyAction {
   type: string;
   payload: string;
 }
+
 function reducer(state: MyState, action: MyAction) {
   console.log('In reducer', action);
   console.log('My state', state);
@@ -74,11 +78,26 @@ export default function RecordScreen(props: Props) {
 
   return (
     <Container component="main" maxWidth="lg">
-      TODO record
-      <button onClick={() => setPause(!isPaused)}>
+      Record:
+      <Button
+        variant="outlined"
+        onClick={() => {
+          setPause(!isPaused);
+        }}
+      >
         {isPaused ? 'Resume' : 'Pause'}
-      </button>
-      Total items: {state.messages.length}
+      </Button>
+      <br />
+      <Button
+        variant="outlined"
+        onClick={() => {
+          fetch('/api/food/meat');
+        }}
+      >
+        Test{' '}
+      </Button>
+      <br />
+      <Typography>Total items: {state.messages.length}</Typography>
       Redux:
       {state.messages.map((i, idx) => {
         return <div key={idx}>{i}</div>;

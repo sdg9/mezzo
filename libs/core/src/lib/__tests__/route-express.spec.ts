@@ -1,5 +1,6 @@
 import * as SuperTestRequest from 'supertest';
 import mezzo from '../core';
+import { routeExpressPort } from './testPorts';
 
 describe('route-express', () => {
   let request: SuperTestRequest.SuperTest<SuperTestRequest.Test>;
@@ -9,7 +10,7 @@ describe('route-express', () => {
 
   beforeEach(async () => {
     process.env.LOG_LEVEL = 'warn';
-    const port = 3004;
+    const port = routeExpressPort;
     request = SuperTestRequest(`http://localhost:${port}`);
     await mezzo.start({
       port,

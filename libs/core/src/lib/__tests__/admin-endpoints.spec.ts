@@ -4,6 +4,7 @@ import {
 } from '@caribou-crew/mezzo-constants';
 import * as SuperTestRequest from 'supertest';
 import mezzo from '../core';
+import { adminEndpointsPort } from './testPorts';
 
 describe('admin-endpoints', () => {
   let request: SuperTestRequest.SuperTest<SuperTestRequest.Test>;
@@ -17,7 +18,7 @@ describe('admin-endpoints', () => {
   const _default = 'default';
   beforeEach(async () => {
     process.env.LOG_LEVEL = 'warn';
-    const port = 3001;
+    const port = adminEndpointsPort;
     request = SuperTestRequest(`http://localhost:${port}`);
     await mezzo.start({
       port,

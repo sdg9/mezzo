@@ -7,6 +7,7 @@ import {
   X_REQUEST_SESSION,
   X_REQUEST_VARIANT,
 } from '@caribou-crew/mezzo-constants';
+import { fileIOPort } from './testPorts';
 
 describe('route-file-io', () => {
   let request: SuperTestRequest.SuperTest<SuperTestRequest.Test>;
@@ -46,7 +47,7 @@ describe('route-file-io', () => {
   `;
   beforeEach(async () => {
     process.env.LOG_LEVEL = 'warn';
-    const port = 3005;
+    const port = fileIOPort;
     request = SuperTestRequest(`http://localhost:${port}`);
     mockedDirectory = path.join(resourcesPath, 'some-custom-mocked-data');
     await mezzo.start({

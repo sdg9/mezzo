@@ -107,7 +107,7 @@ export class Mezzo {
     // Initialize websocket server
     this.server = createServer(this.app);
 
-    this.websocketServer = recordingServer(this.server);
+    this.websocketServer = recordingServer(this.app, this.server);
 
     return new Promise((resolve) => {
       this.server.listen(this.port, () => {
@@ -127,8 +127,8 @@ export class Mezzo {
         logger.debug(
           '***************Stopping Mezzo mocking server ***************'
         );
-        serverToStop.close(resolve);
         this.websocketServer?.close();
+        serverToStop.close(resolve);
         this.app = undefined;
       } else {
         logger.warn(
