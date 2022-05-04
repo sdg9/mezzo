@@ -3,8 +3,8 @@ import React, { useEffect, useReducer, useRef, useState } from 'react';
 import { Button, Container, Typography } from '@mui/material';
 import { DEFAULT_PORT } from '@caribou-crew/mezzo-constants';
 
-import { interceptFetch } from '@caribou-crew/mezzo-intercept-fetch';
-interceptFetch();
+import { interceptedFetch } from '@caribou-crew/mezzo-intercept-fetch';
+// interceptFetch();
 
 type Props = Record<string, never>;
 
@@ -38,6 +38,8 @@ export default function RecordScreen(props: Props) {
   const [isPaused, setPause] = useState(false);
   // const [messages, setItems] = useState<string[]>([]);
   const [state, dispatch] = useReducer(reducer, { messages: [] });
+
+  const fetchWithIntercept = interceptedFetch(fetch, {});
 
   // TODO update to proper domain and port
   const ws = useRef<WebSocket>(
@@ -91,7 +93,7 @@ export default function RecordScreen(props: Props) {
       <Button
         variant="outlined"
         onClick={() => {
-          fetch('/api/food/meat');
+          fetchWithIntercept('/api/food/meat');
         }}
       >
         Test{' '}

@@ -48,3 +48,8 @@ export interface ServerConnectionOptions {
   hostname?: string;
   port?: number;
 }
+
+export type Fetch = (
+  input: RequestInfo,
+  init?: RequestInit
+) => Promise<Response>;

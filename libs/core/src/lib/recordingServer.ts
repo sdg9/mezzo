@@ -14,38 +14,42 @@ import {
 //     ping(ws);
 //   }, 1000);
 // }
-const requests = [];
-const responses = [];
 const data = [];
 
 function setupAPI(app: express.Express, wss: WebSocket.Server) {
   app.post(MEZZO_API_POST_RECORD_REQUEST, (req, res) => {
-    // console.log('Req: ', req);
-    // ws.send(JSON.stringify(req));
-    // ws.send('Got request');
-    console.log('Broadcasting Req...');
-    // wss.broadcast('Got request');
-    requests.push(req.body);
+    const { uuid, config, resource, startTime } = req.body;
+    data.push({
+      uuid,
+      startTime,
+      resource,
+      request: {
+        config,
+      },
+      response: {},
+    });
     res.sendStatus(201);
+    // TODO trigger update to anyone listening on socket
   });
   app.post(MEZZO_API_POST_RECORD_RESPONSE, (req, res) => {
-    console.log('Broadcasting Res...');
-    // console.log('Req: ', req);
-    // ws.send(JSON.stringify(req));
-    // ws.send('Got response');
-    responses.push(req.body);
+    const { duration, endTime, url, uuid, ...rest } = req.body;
+    const existingIndex = data.findIndex((i) => i.uuid === uuid);
+    data[existingIndex] = {
+      ...data[existingIndex],
+      duration,
+      endTime,
+      url,
+      response: {
+        ...rest,
+      },
+    };
     res.sendStatus(201);
+    // TODO trigger update to anyone listening on socket
   });
   app.get(MEZZO_API_GET_RECORDINGS, (req, res) => {
-    console.log('Broadcasting Res...');
-    // console.log('Req: ', req);
-    // ws.send(JSON.stringify(req));
-    // ws.send('Got response');
     res.send({
-      requests,
-      responses,
+      data,
     });
-    // res.sendStatus(200);
   });
 }
 
@@ -53,8 +57,6 @@ export default (app: express.Express, expressServer: Server) => {
   const websocketServer = new WebSocket.Server({ server: expressServer });
   setupAPI(app, websocketServer);
   websocketServer.on('connection', (ws: WebSocket) => {
-    // console.log('Connection called');
-    //connection is up, let's add a simple simple event
     ws.on('message', (message: string) => {
       //log the received message and send it back to the client
       console.log('received: %s', message);
@@ -65,11 +67,6 @@ export default (app: express.Express, expressServer: Server) => {
     ws.send('Hi there, I am a WebSocket server');
     // ping(ws);
   });
-
-  // const websocketServer = new WebSocket.Server({
-  //   noServer: true,
-  //   path: '/websockets',
-  // });
 
   return websocketServer;
 };

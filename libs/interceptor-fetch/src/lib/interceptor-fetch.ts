@@ -4,8 +4,9 @@ import {
   MEZZO_API_POST_RECORD_REQUEST,
   MEZZO_API_POST_RECORD_RESPONSE,
 } from '@caribou-crew/mezzo-constants';
-import { ServerConnectionOptions } from '@caribou-crew/mezzo-interfaces';
+import { Fetch, ServerConnectionOptions } from '@caribou-crew/mezzo-interfaces';
 import * as R from 'ramda';
+import { v4 as uuidv4 } from 'uuid';
 // import * as R from 'ramda/src/curry';
 const { curry } = R;
 
@@ -17,7 +18,7 @@ function getConnectionFromOptions(options?: ServerConnectionOptions) {
 }
 
 async function intercept(
-  originalFetch,
+  originalFetch: Fetch,
   options: ServerConnectionOptions,
   resource: string,
   config: Record<string, any> = {}
@@ -37,24 +38,50 @@ async function intercept(
   );
 
   // Request interceptor here
+  const startTime = new Date().getTime();
+  const uuid = uuidv4();
   originalFetch(`${recordBaseUri}${MEZZO_API_POST_RECORD_REQUEST}`, {
     method: 'POST',
     body: JSON.stringify({
+      uuid,
       resource,
       config,
+      startTime,
     }),
+    headers: {
+      'Content-Type': 'application/json',
+    },
   });
 
   // Request
   const response = await originalFetch(resource, config);
+  const endTime = new Date().getTime();
+  const responseJson = await response.clone().json();
 
   // Response interceptor here
-  console.log(`Resopnse intercept`, response);
+  console.log('Total response: ', response);
+  console.log(`Resopnse intercept`, JSON.stringify(responseJson));
   originalFetch(`${recordBaseUri}${MEZZO_API_POST_RECORD_RESPONSE}`, {
     method: 'POST',
     body: JSON.stringify({
-      response,
+      uuid,
+      endTime,
+      duration: endTime - startTime,
+      body: responseJson,
+      // origBody: response.body,
+      // origBody2: response.blob(),
+      headers: response.headers,
+      status: response.status,
+      // response: response,
+      redirected: response.redirected,
+      statusText: response.statusText,
+      type: response.type,
+      url: response.url,
+      // all: { ...response },
     }),
+    headers: {
+      'Content-Type': 'application/json',
+    },
   });
 
   return response;

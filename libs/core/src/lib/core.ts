@@ -28,6 +28,7 @@ import {
 } from '@caribou-crew/mezzo-constants';
 
 import * as bodyParser from 'body-parser';
+import * as cors from 'cors';
 import {
   RouteItemType,
   ServerConnectionOptions,
@@ -77,6 +78,7 @@ export class Mezzo {
 
   private initializeMiddleware = () => {
     this.app.use(bodyParser.json({ limit: '5mb' }));
+    this.app.use(cors({ origin: 'http://localhost:4200' }));
   };
 
   public start = async (options?: MezzoStartOptions): Promise<Server> => {
