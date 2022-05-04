@@ -1,7 +1,10 @@
 import React, { useEffect, useReducer, useRef, useState } from 'react';
 
 import { Button, Container, Typography } from '@mui/material';
-import { DEFAULT_PORT } from '@caribou-crew/mezzo-constants';
+import {
+  DEFAULT_PORT,
+  MEZZO_API_GET_RECORDINGS,
+} from '@caribou-crew/mezzo-constants';
 
 import { interceptedFetch } from '@caribou-crew/mezzo-intercept-fetch';
 // interceptFetch();
@@ -14,7 +17,7 @@ interface MyState {
 
 interface MyAction {
   type: string;
-  payload: string;
+  payload: any;
 }
 
 function reducer(state: MyState, action: MyAction) {
@@ -27,6 +30,13 @@ function reducer(state: MyState, action: MyAction) {
         ...state,
         messages: [...state.messages, action.payload],
       };
+    case 'set': {
+      const payload: Record<string, string>[] = action.payload;
+      return {
+        ...state,
+        messages: payload,
+      };
+    }
     // case 'decrement':
     //   return {count: state.count - 1};
     default:
@@ -45,6 +55,19 @@ export default function RecordScreen(props: Props) {
   const ws = useRef<WebSocket>(
     new WebSocket(`ws://localhost:${DEFAULT_PORT}/`)
   );
+
+  useEffect(() => {
+    async function fetchAllRecordsings() {
+      const response = await fetch(MEZZO_API_GET_RECORDINGS);
+      const { data } = await response.json();
+      console.log('Setting payload data to: ', data);
+      dispatch({
+        type: 'set',
+        payload: data,
+      });
+    }
+    fetchAllRecordsings();
+  }, []);
 
   // Connect/disconnect on component mount/unmount
   useEffect(() => {
@@ -101,13 +124,26 @@ export default function RecordScreen(props: Props) {
       <br />
       <Typography>Total items: {state.messages.length}</Typography>
       Redux:
-      {state.messages.map((i, idx) => {
-        return <div key={idx}>{i}</div>;
+      {state.messages?.map((i, idx) => {
+        return (
+          <div key={i?.['uuid'] ?? idx}>
+            <NetworkItem {...i} />
+          </div>
+        );
       })}
       {/* Comopnent state:
       {messages.map((i, idx) => {
         return <div key={idx}>{i}</div>;
       })} */}
     </Container>
+  );
+}
+
+function NetworkItem(props: any) {
+  return (
+    <>
+      <Typography>URL: {props.url}</Typography>
+      <Typography>Duration: {props.duration}</Typography>
+    </>
   );
 }

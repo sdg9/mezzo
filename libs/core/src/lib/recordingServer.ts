@@ -14,6 +14,8 @@ import {
 //     ping(ws);
 //   }, 1000);
 // }
+
+// TODO type this object in interfaces so that it can also be used via RecordingScreen.tsx
 const data = [];
 
 function setupAPI(app: express.Express, wss: WebSocket.Server) {
