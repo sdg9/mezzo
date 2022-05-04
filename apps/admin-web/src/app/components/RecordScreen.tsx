@@ -7,34 +7,55 @@ import {
 } from '@caribou-crew/mezzo-constants';
 
 import { interceptedFetch } from '@caribou-crew/mezzo-intercept-fetch';
+import { RecordedItem } from '@caribou-crew/mezzo-interfaces';
+import NetworkItem from './NetworkItem';
 // interceptFetch();
 
 type Props = Record<string, never>;
 
 interface MyState {
-  messages: string[];
+  items: RecordedItem[];
 }
 
 interface MyAction {
   type: string;
-  payload: any;
+  payload: RecordedItem | RecordedItem[];
 }
 
 function reducer(state: MyState, action: MyAction) {
-  console.log('In reducer', action);
-  console.log('My state', state);
+  // console.log('In reducer', action);
+  // console.log('My state', state);
+  console.log('Received new action: ', action.type);
   switch (action.type) {
-    case 'add':
-      // return { count: state.count + 1 };
-      return {
-        ...state,
-        messages: [...state.messages, action.payload],
-      };
+    case 'add': {
+      const payload: RecordedItem = action.payload as RecordedItem;
+      // Attempt to update existing, if not add
+      const existingIndex = state.items.findIndex(
+        (i) => i.uuid === payload.uuid
+      );
+      if (existingIndex >= 0) {
+        console.log('Updating existing item');
+        const clonedItems = [...state.items];
+        clonedItems[existingIndex] = payload;
+        // update
+        return {
+          ...state,
+          items: clonedItems,
+        };
+      } else {
+        console.log('Adding new item');
+        //add
+        return {
+          ...state,
+          items: [...state.items, payload],
+        };
+      }
+    }
     case 'set': {
-      const payload: Record<string, string>[] = action.payload;
+      const payload: RecordedItem[] = action.payload as RecordedItem[];
       return {
         ...state,
-        messages: payload,
+        items: payload,
       };
     }
     // case 'decrement':
@@ -44,17 +65,20 @@ function reducer(state: MyState, action: MyAction) {
   }
 }
 
+const initialState: MyState = {
+  items: [],
+};
+
 export default function RecordScreen(props: Props) {
   const [isPaused, setPause] = useState(false);
   // const [messages, setItems] = useState<string[]>([]);
-  const [state, dispatch] = useReducer(reducer, { messages: [] });
+  // const [state, dispatch] = useReducer(reducer, { items: [] });
+  // const [state, dispatch] = useReducer(reducer, { items: [] });
+  const [state, dispatch] = useReducer(reducer, initialState);
 
   const fetchWithIntercept = interceptedFetch(fetch, {});
 
-  // TODO update to proper domain and port
-  const ws = useRef<WebSocket>(
-    new WebSocket(`ws://localhost:${DEFAULT_PORT}/`)
-  );
+  const ws = useRef<WebSocket | null>(null);
 
   useEffect(() => {
     async function fetchAllRecordsings() {
@@ -71,10 +95,12 @@ export default function RecordScreen(props: Props) {
 
   // Connect/disconnect on component mount/unmount
   useEffect(() => {
+    ws.current = new WebSocket(`ws://localhost:${DEFAULT_PORT}/`);
     ws.current.onopen = () => console.log('ws opened');
     ws.current.onclose = () => console.log('ws closed');
     const wsCurrent = ws.current;
     return () => {
+      wsCurrent.send('Close');
       wsCurrent.close();
     };
   }, []);
@@ -85,10 +111,9 @@ export default function RecordScreen(props: Props) {
 
     ws.current.onmessage = (e: MessageEvent<string>) => {
       if (isPaused) return;
-      const message = e.data;
+      const message: RecordedItem = JSON.parse(e.data);
       // const message = JSON.parse(e.data);
       console.log('e', message);
-      // setItems([...messages, message]);
       dispatch({ type: 'add', payload: message });
 
       // TODO each message will be new network request or response, think charles
@@ -122,11 +147,11 @@ export default function RecordScreen(props: Props) {
         Test{' '}
       </Button>
       <br />
-      <Typography>Total items: {state.messages.length}</Typography>
+      <Typography>Total items: {state.items.length}</Typography>
       Redux:
-      {state.messages?.map((i, idx) => {
+      {state.items?.map((i: RecordedItem) => {
         return (
-          <div key={i?.['uuid'] ?? idx}>
+          <div key={i.uuid}>
             <NetworkItem {...i} />
           </div>
         );
@@ -139,11 +164,12 @@ export default function RecordScreen(props: Props) {
   );
 }
 
-function NetworkItem(props: any) {
-  return (
-    <>
-      <Typography>URL: {props.url}</Typography>
-      <Typography>Duration: {props.duration}</Typography>
-    </>
-  );
-}
+// function NetworkItem(props: RecordedItem) {
+//   return (
+//     <>
+//       <Typography>UUID: {props.uuid}</Typography>
+//       <Typography>URL: {props.url}</Typography>
+//       <Typography>Duration: {props.duration}</Typography>
+//     </>
+//   );
+// }

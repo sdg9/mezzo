@@ -53,3 +53,26 @@ export type Fetch = (
   input: RequestInfo,
   init?: RequestInit
 ) => Promise<Response>;
+
+// Network record/response types
+export interface RecordedItem {
+  uuid: string;
+  resource: string;
+  request: RecordedRequest;
+  startTime: number;
+  endTime?: number;
+  duration?: number;
+  url?: string;
+  response?: RecordedResponse;
+}
+export interface RecordedRequest {
+  config: Record<string, any>;
+}
+export interface RecordedResponse {
+  body: any;
+  headers: Record<string, string>;
+  redirected: boolean;
+  status: number;
+  statusText: string;
+  type: string;
+}
