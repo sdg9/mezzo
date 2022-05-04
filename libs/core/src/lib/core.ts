@@ -78,7 +78,8 @@ export class Mezzo {
 
   private initializeMiddleware = () => {
     this.app.use(bodyParser.json({ limit: '5mb' }));
-    this.app.use(cors({ origin: 'http://localhost:4200' }));
+    // this.app.use(cors({ origin: 'http://localhost:4200' }));
+    this.app.use(cors({ origin: '*' }));
   };
 
   public start = async (options?: MezzoStartOptions): Promise<Server> => {

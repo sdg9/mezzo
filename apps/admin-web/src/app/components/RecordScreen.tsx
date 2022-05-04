@@ -71,6 +71,7 @@ const initialState: MyState = {
 
 export default function RecordScreen(props: Props) {
   const [isPaused, setPause] = useState(false);
+  const [selectedUUID, setSelectedUUID] = useState('');
   // const [messages, setItems] = useState<string[]>([]);
   // const [state, dispatch] = useReducer(reducer, { items: [] });
   // const [state, dispatch] = useReducer(reducer, { items: [] });
@@ -128,7 +129,7 @@ export default function RecordScreen(props: Props) {
 
   return (
     <Container component="main" maxWidth="lg">
-      Record:
+      {/* Record:
       <Button
         variant="outlined"
         onClick={() => {
@@ -137,14 +138,14 @@ export default function RecordScreen(props: Props) {
       >
         {isPaused ? 'Resume' : 'Pause'}
       </Button>
-      <br />
+      <br /> */}
       <Button
         variant="outlined"
         onClick={() => {
           fetchWithIntercept('/api/food/meat');
         }}
       >
-        Test{' '}
+        Make API Call{' '}
       </Button>
       <br />
       <Typography>Total items: {state.items.length}</Typography>
@@ -152,24 +153,14 @@ export default function RecordScreen(props: Props) {
       {state.items?.map((i: RecordedItem) => {
         return (
           <div key={i.uuid}>
-            <NetworkItem {...i} />
+            <NetworkItem
+              {...i}
+              selectedUUID={selectedUUID}
+              setSelectedUUID={setSelectedUUID}
+            />
           </div>
         );
       })}
-      {/* Comopnent state:
-      {messages.map((i, idx) => {
-        return <div key={idx}>{i}</div>;
-      })} */}
     </Container>
   );
 }
-
-// function NetworkItem(props: RecordedItem) {
-//   return (
-//     <>
-//       <Typography>UUID: {props.uuid}</Typography>
-//       <Typography>URL: {props.url}</Typography>
-//       <Typography>Duration: {props.duration}</Typography>
-//     </>
-//   );
-// }

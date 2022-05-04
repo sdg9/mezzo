@@ -6,6 +6,7 @@ import { findRouteIndexById } from '../utils/routeMatchingUtils';
 import { Mezzo } from './core';
 import * as path from 'path';
 import { version } from '../../package.json';
+// import { StaticRouter } from 'react-router-dom/server';
 import {
   GetRoutesResponse,
   SetRouteVariant,

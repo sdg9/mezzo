@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
   Container,
   Button,
@@ -9,18 +8,12 @@ import {
 } from '@mui/material';
 
 import { red, purple, green, blue, orange } from '@mui/material/colors';
-import { OpenInNew } from '@mui/icons-material';
-import { openInNewTab, openJsonInNewTab } from '../utils/urlHelper';
-import {
-  RecordedItem,
-  RouteItemType,
-  RouteOrVariantIcon,
-  VariantCategory,
-} from '@caribou-crew/mezzo-interfaces';
-import DynamicIcon from './DynamicIcon';
-import RouteCategory from './RouteCategory';
+import { RecordedItem } from '@caribou-crew/mezzo-interfaces';
 
-type Props = RecordedItem;
+interface Props extends RecordedItem {
+  selectedUUID: string;
+  setSelectedUUID: (id: string) => void;
+}
 
 const NetworkItem = ({
   uuid,
@@ -31,6 +24,8 @@ const NetworkItem = ({
   duration,
   url,
   response,
+  selectedUUID,
+  setSelectedUUID,
 }: Props) => {
   const getColors = () => {
     let backgroundColor;
@@ -72,11 +67,9 @@ const NetworkItem = ({
         cursor: 'pointer',
         marginBottom: 15,
       }}
-      // onClick={() =>
-      // route.id === selectedItem
-      //   ? setSelectedItem('')
-      //   : setSelectedItem(route.id)
-      // }
+      onClick={() =>
+        uuid === selectedUUID ? setSelectedUUID('') : setSelectedUUID(uuid)
+      }
     >
       <Box
         sx={{
@@ -87,7 +80,7 @@ const NetworkItem = ({
       >
         {_renderTitle()}
       </Box>
-      {/* {selectedItem === route.id && (
+      {selectedUUID === uuid && (
         <Box>
           <Divider></Divider>
           <Container
@@ -98,24 +91,37 @@ const NetworkItem = ({
           >
             <Typography variant="subtitle2">Details</Typography>
             <Typography variant="body2">
-              Route Id: {<span style={{ color: 'green' }}>{route.id}</span>}
+              Start: {new Date(startTime).toISOString()}, End:{' '}
+              {new Date(startTime).toISOString()}, Duration:{' '}
+              {duration ? `${duration}ms` : 'Pending'}
             </Typography>
-            <Typography noWrap variant="body2">
-              Active Variant Id:{' '}
-              {<span style={{ color: 'green' }}>{activeVariant}</span>}
+            <Typography variant="subtitle2">Request:</Typography>
+            <Typography variant="body2">
+              Config: {JSON.stringify(request.config)}
             </Typography>
-            {variantCategories.map((category, index) => (
-              <RouteCategory
-                key={`${category}:${index}`}
-                category={category}
-                route={route}
-                activeVariant={activeVariant}
-                setActiveVariant={setActiveVariant}
-              />
-            ))}
+            <Typography variant="subtitle2">Response:</Typography>
+            <Typography variant="body2">
+              Status: {response?.status} {response?.statusText}
+            </Typography>
+            <Typography variant="body2">
+              Headers:{' '}
+              {
+                <span style={{ color: 'green' }}>
+                  {JSON.stringify(response?.headers)}
+                </span>
+              }
+            </Typography>
+            <Typography variant="body2">
+              Body:{' '}
+              {
+                <span style={{ color: 'green' }}>
+                  {JSON.stringify(response?.body)}
+                </span>
+              }
+            </Typography>
           </Container>
-        </Box> */}
-      {/* )} */}
+        </Box>
+      )}
     </Paper>
   );
 };

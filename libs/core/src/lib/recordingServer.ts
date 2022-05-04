@@ -6,7 +6,7 @@ import {
   MEZZO_API_POST_RECORD_RESPONSE,
   MEZZO_API_GET_RECORDINGS,
 } from '@caribou-crew/mezzo-constants';
-import { v4 as uuidv4 } from 'uuid';
+// import { v4 as uuidv4 } from 'uuid';
 import { RecordedItem } from '@caribou-crew/mezzo-interfaces';
 
 // function ping(ws: WebSocket) {
@@ -20,13 +20,15 @@ import { RecordedItem } from '@caribou-crew/mezzo-interfaces';
 // TODO type this object in interfaces so that it can also be used via RecordingScreen.tsx
 const data: RecordedItem[] = [];
 interface Clients {
-  uuid: string;
+  id: number;
   ws: WebSocket;
 }
 const clients: Clients[] = [];
+let id = 0;
 
 function setupAPI(app: express.Express, wss: WebSocket.Server) {
   app.post(MEZZO_API_POST_RECORD_REQUEST, (req, res) => {
+    console.log('Got record request ');
     const { uuid, config, resource, startTime } = req.body;
     const item = {
       uuid,
@@ -76,21 +78,21 @@ export default (app: express.Express, expressServer: Server) => {
   setupAPI(app, websocketServer);
   websocketServer.on('connection', (ws: WebSocket) => {
     console.log('Client connected');
-    const uuid = uuidv4();
+    id += 1;
     clients.push({
-      uuid,
+      id,
       ws,
     });
     // TODO why are 4 clients connecting from one browser?
     console.log(
       'Total Clients: ',
-      clients.map((i) => i.uuid)
+      clients.map((i) => i.id)
     );
     ws.on('message', (message: string) => {
       //log the received message and send it back to the client
       if (message.toString() === 'Close') {
-        console.log('Removing client: ', uuid);
-        const idx = clients.findIndex((i) => i.uuid === uuid);
+        console.log('Removing client: ', id);
+        const idx = clients.findIndex((i) => i.id === id);
         clients.splice(idx, 1);
         ws.close();
       }

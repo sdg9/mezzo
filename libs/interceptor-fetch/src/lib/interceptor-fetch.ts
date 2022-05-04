@@ -6,9 +6,30 @@ import {
 } from '@caribou-crew/mezzo-constants';
 import { Fetch, ServerConnectionOptions } from '@caribou-crew/mezzo-interfaces';
 import * as R from 'ramda';
-import { v4 as uuidv4 } from 'uuid';
+// import { v4 as uuidv4 } from 'uuid';
 // import * as R from 'ramda/src/curry';
 const { curry } = R;
+
+// function uuidv4() {
+//   return (1e7 + '-' + 1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c) =>
+//     (
+//       c ^
+//       (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))
+//     ).toString(16)
+//   );
+// }
+function generateGuid() {
+  let result, i, j;
+  result = '';
+  for (j = 0; j < 32; j++) {
+    if (j == 8 || j == 12 || j == 16 || j == 20) result = result + '-';
+    i = Math.floor(Math.random() * 16)
+      .toString(16)
+      .toUpperCase();
+    result = result + i;
+  }
+  return result;
+}
 
 function getConnectionFromOptions(options?: ServerConnectionOptions) {
   const protocol = options?.useHttps ? 'https' : 'http';
@@ -39,7 +60,8 @@ async function intercept(
 
   // Request interceptor here
   const startTime = new Date().getTime();
-  const uuid = uuidv4();
+  // const uuid = uuidv4();
+  const uuid = generateGuid();
   originalFetch(`${recordBaseUri}${MEZZO_API_POST_RECORD_REQUEST}`, {
     method: 'POST',
     body: JSON.stringify({
