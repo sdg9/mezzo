@@ -41,3 +41,7 @@ There are some subtle differences in how things behave due to this. Here is how 
 4. Start server by running `node src/index start`
    - If you want test data, install `cross-env` globally and run `cross-env USE_DUMMY_DATA=true node src/index.js start`
 5. Load site at `http://localhost:8000/mezzo/`
+
+## See dependency Graph
+
+`nx dep-graph`

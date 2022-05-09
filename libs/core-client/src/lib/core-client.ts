@@ -6,14 +6,14 @@ import {
 } from '@caribou-crew/mezzo-interfaces';
 import serialize from './utils/serialize';
 // import * as WebSocket from 'ws';
-import * as WebSocket from 'ws';
-import logger, { setLogLevel } from '@caribou-crew/mezzo-utils-logger';
+// import * as WebSocket from 'ws';
+// import logger, { setLogLevel } from '@caribou-crew/mezzo-utils-logger';
 
 // function createSocket(path) {
 //   return new WebSocket(path);
 // }
 const DEFAULT_OPTIONS: ClientOptions = {
-  createSocket: null,
+  createSocket: undefined,
   host: 'localhost',
   port: 8000,
   name: 'mezzo-core-client',
@@ -106,7 +106,7 @@ export class MezzoClient {
    */
   isReady = false;
 
-  readyState: number;
+  readyState = -1;
 
   isConnected = false;
 
@@ -118,7 +118,8 @@ export class MezzoClient {
    * Messages that need to be sent.
    */
   sendQueue: any[] = [];
-  socket: WebSocket = null;
+  // socket: WebSocket = null;
+  socket: any = null;
 
   public configure(options: ClientOptions = {}) {
     this.options = {
@@ -150,7 +151,10 @@ export class MezzoClient {
     const location = `ws://${host}:${port}`;
     console.log(`Attempting to connect ws to ${location}`);
     console.log('Create socket: ', createSocket);
-    const socket = createSocket(`${location}`);
+    if (!createSocket) {
+      console.error('You must supply createSocket argument');
+    }
+    const socket = createSocket?.(`${location}`);
 
     // fires when we talk to the server
     const onOpen = () => {
@@ -198,11 +202,11 @@ export class MezzoClient {
     };
 
     // fires when we receive a command, just forward it off
-    const onMessage = (data: WebSocket.Data) => {
-      logger.debug('Received message via socket: ', data);
+    const onMessage = (data: any) => {
+      console.debug('Received message via socket: ', data);
       // console.log('Socket got message', data.toString());
       const command = typeof data === 'string' ? JSON.parse(data) : data;
-      logger.debug(`Command: ${command}`);
+      console.debug(`Command: ${command}`);
       // trigger our own command handler
       onCommand && onCommand(command);
 
@@ -240,7 +244,7 @@ export class MezzoClient {
       // this is a browser
       socket.onopen = onOpen;
       socket.onclose = onClose;
-      socket.onmessage = (evt) => onMessage(evt.data);
+      socket.onmessage = (evt: any) => onMessage(evt.data);
     }
 
     this.socket = socket;
@@ -255,12 +259,12 @@ export class MezzoClient {
   // public on(event: string, listener: (data: WebSocket.Data) => void) {
   //   this.socket.on(event, listener);
   // }
-  public on;
+  public on: any;
 
   /**
    * Sends a command to the server
    */
-  public send = (type, payload = {}, important = false) => {
+  public send = (type: string, payload = {}, important = false) => {
     // set the timing info
     const date = new Date();
     let deltaTime = date.getTime() - this.lastMessageDate.getTime();
@@ -312,6 +316,8 @@ export class MezzoClient {
       response.status >= 200 &&
       response.status <= 299;
     const important = !ok;
+
+    console.log({ request, response, duration, important });
     this.send('api.response', { request, response, duration }, important);
   };
 }

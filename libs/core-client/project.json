@@ -26,7 +26,8 @@
         "tsConfig": "libs/core-client/tsconfig.lib.json",
         "packageJson": "libs/core-client/package.json",
         "main": "libs/core-client/src/index.ts",
-        "assets": ["libs/core-client/*.md"]
+        "assets": ["libs/core-client/*.md"],
+        "buildableProjectDepsInPackageJsonType": "dependencies"
       }
     }
   },

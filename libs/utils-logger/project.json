@@ -26,7 +26,8 @@
         "tsConfig": "libs/utils-logger/tsconfig.lib.json",
         "packageJson": "libs/utils-logger/package.json",
         "main": "libs/utils-logger/src/index.ts",
-        "assets": ["libs/utils-logger/*.md"]
+        "assets": ["libs/utils-logger/*.md"],
+        "buildableProjectDepsInPackageJsonType": "dependencies"
       }
     }
   },

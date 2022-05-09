@@ -48,13 +48,19 @@ export const interceptReactNativeFetch = (pluginConfig: ClientOptions = {}) => {
   // a temporary cache to hold requests so we can match up the data
   const requestCache = {};
 
+  function onOpen(protocol: string, url: string) {
+    console.log(`Opening ${url} via ${protocol}`);
+  }
+
   /**
    * Fires when we talk to the server.
    *
    * @param {*} data - The data sent to the server.
    * @param {*} instance - The XMLHTTPRequest instance.
    */
-  function onSend(data, xhr) {
+  function onSend(data: Record<string, unknown>, xhr: any) {
+    console.log('onSend data: ', data);
+    console.log('onSend xhr: ', xhr);
     if (options.ignoreUrls && options.ignoreUrls.test(xhr._url)) {
       xhr._skipReactotron = true;
       return;
@@ -84,7 +90,20 @@ export const interceptReactNativeFetch = (pluginConfig: ClientOptions = {}) => {
    * @param {*} type - Not sure.
    * @param {*} xhr - The XMLHttpRequest instance.
    */
-  function onResponse(status, timeout, response, url, type, xhr) {
+  function onResponse(
+    status: number,
+    timeout: boolean,
+    response: any,
+    url: string,
+    type: any,
+    xhr: any
+  ) {
+    console.log('onResponse status: ', status);
+    console.log('onResponse timeout: ', timeout);
+    console.log('onResponse response: ', response);
+    console.log('onResponse url: ', url);
+    console.log('onResponse type: ', type);
+    console.log('onResponse xhr: ', xhr);
     if (xhr._skipReactotron) {
       return;
     }
@@ -118,15 +137,19 @@ export const interceptReactNativeFetch = (pluginConfig: ClientOptions = {}) => {
       '';
 
     const sendResponse = (responseBodyText) => {
-      let body = `~~~ skipped ~~~`;
+      let body: string | Record<string, unknown> = `~~~ skipped ~~~`;
+      // console.log('Got body response: ', responseBodyText);
       if (responseBodyText) {
         try {
           // all i am saying, is give JSON a chance...
           body = JSON.parse(responseBodyText);
         } catch (boom) {
+          console.error('Failed to parse response json, using', boom);
           body = response;
         }
       }
+      // console.log('Sending request with body: ', body);
+      // body = { hello: 'world' };
       const mezzoResponse = {
         body,
         status,
@@ -135,7 +158,7 @@ export const interceptReactNativeFetch = (pluginConfig: ClientOptions = {}) => {
 
       // send this off to Reactotron
       // (reactotron as any).apiResponse(tronRequest, tronResponse, stopTimer()); // TODO: Fix
-      console.log('TODO finish implementng me, send request off');
+      // console.log('TODO finish implementng me, send request off');
       mezzoClient.captureApiResponse(mezzoRequest, mezzoResponse, stopTimer());
     };
 
@@ -147,6 +170,7 @@ export const interceptReactNativeFetch = (pluginConfig: ClientOptions = {}) => {
     // prepare the right body to send
     if (useRealResponse) {
       if (type === 'blob' && typeof FileReader !== 'undefined' && response) {
+        console.log('Sending real blob repsonse');
         // Disable reason: FileReader should be in global scope since RN 0.54
         // eslint-disable-next-line no-undef
         const bReader = new FileReader();
@@ -157,14 +181,17 @@ export const interceptReactNativeFetch = (pluginConfig: ClientOptions = {}) => {
         bReader.addEventListener('loadend', brListener);
         bReader.readAsText(response);
       } else {
+        console.log('Sending real non-blob repsonse');
         sendResponse(response);
       }
     } else {
+      console.log('Not sending real response');
       sendResponse('');
     }
   }
 
   // register our monkey-patch
+  XHRInterceptor.setOpenCallback(onOpen);
   XHRInterceptor.setSendCallback(onSend);
   XHRInterceptor.setResponseCallback(onResponse);
   XHRInterceptor.enableInterception();

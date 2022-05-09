@@ -73,7 +73,7 @@ function setupAPI(app: express.Express) {
     // data[existingIndex] = updatedItem;
     res.sendStatus(201);
     // TODO trigger update to anyone listening on socket
-    notifyAllClientsJSON(updatedItem);
+    notifyAllClientsJSON(updatedItem, 'api.response');
   });
   logger.info('Adding GET endpoint');
   app.get(MEZZO_API_GET_RECORDINGS, (req, res) => {
@@ -84,10 +84,10 @@ function setupAPI(app: express.Express) {
   });
 }
 
-function notifyAllClientsJSON(message: any) {
+function notifyAllClientsJSON(message: any, type?: string) {
   clients.forEach(({ ws }) => {
     console.log('Sending message to all connected clients');
-    ws.send(JSON.stringify(message));
+    ws.send(JSON.stringify({ type, ...message }));
   });
 }
 
@@ -104,7 +104,7 @@ function processRequestResponseMessage(message: SocketRequestResponseMessage) {
       duration: message.payload.duration,
     };
     data.push(item);
-    notifyAllClientsJSON(item);
+    notifyAllClientsJSON(item, 'api.response');
   }
 }
 

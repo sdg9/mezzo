@@ -39,7 +39,8 @@
         "tsConfig": "libs/core/tsconfig.lib.json",
         "packageJson": "libs/core/package.json",
         "main": "libs/core/src/index.ts",
-        "assets": ["libs/core/*.md", "libs/core/src/resources/**/!(*.ts)"]
+        "assets": ["libs/core/*.md", "libs/core/src/resources/**/!(*.ts)"],
+        "buildableProjectDepsInPackageJsonType": "dependencies"
       }
     }
   },
