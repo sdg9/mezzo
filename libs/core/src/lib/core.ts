@@ -28,6 +28,121 @@ import recordingServer from './plugins/record-endpoints';
 import jsonBodyParser from './plugins/json-body-parser';
 import cors from './plugins/cors';
 import { ClientUtils } from './utils/client-utils';
+// import * as logOG from 'loglevel';
+import * as chalk from 'chalk';
+import { getLogger } from 'loglevel';
+
+const log = getLogger('core');
+
+// // very simple quick'n'dirty hash function
+// const getColorFromStr = function (str) {
+//   if (str === undefined || str.length == 0) return chalk.white;
+//   let hash = 0,
+//     len;
+//   for (let i = str.length; i--; ) {
+//     hash += str.charCodeAt(i);
+//   }
+//   const chalkColors = [
+//     chalk.red,
+//     chalk.green,
+//     chalk.yellow,
+//     chalk.blue,
+//     chalk.magenta,
+//     chalk.cyan,
+//   ];
+//   return chalkColors[hash % chalkColors.length];
+// };
+
+// loglevel Plugin to create colorfull log output using 'chalk'
+// const originalFactory = log.methodFactory;
+// const tempLog = log;
+// tempLog.methodFactory = function (methodName, logLevel, loggerName) {
+//   const rawMethod = originalFactory(methodName, logLevel, loggerName);
+//   const logLevelNames = ['TRACE', 'DEBUG', 'INFO ', 'WARN ', 'ERROR'];
+//   const messageColor = getColorFromStr(loggerName); // or getColorFromStr(logLevel)
+
+//   return function (message) {
+//     rawMethod.bind(
+//       chalk.cyan.underline(loggerName) +
+//         ' ' +
+//         chalk.bold.magenta(logLevelNames[logLevel]) +
+//         ' ' +
+//         messageColor(message)
+//     );
+//   };
+// };
+
+// const path = require('path');
+// import * as path from 'path';
+
+const stackTrace = function () {
+  const obj: any = {};
+  Error.captureStackTrace(obj, stackTrace);
+  return obj.stack;
+};
+
+const getLine = function (stack) {
+  const matchResult = stack.match(/\(.*?\)|\s.+/g) || [];
+  const arr = matchResult.map((it) => {
+    return it.split(' ').pop().replace(/\(|\)/g, '');
+  });
+  return arr[1] ?? '';
+};
+
+const log2 = function (...args) {
+  const stack = stackTrace() || '';
+  const matchResult = getLine(stack);
+  const line = matchResult;
+  for (const i in args) {
+    if (typeof args[i] == 'object') {
+      // util.inspect(arguments[i], false, 2, false)
+      args[i] = JSON.stringify(args[i]);
+    }
+    args[i] += '  ' + line;
+    // args[i] += '  ' + line;
+  }
+
+  // eslint-disable-next-line prefer-spread
+  console.log.apply(console, args);
+  // console.log(args);
+};
+
+log2('Hello world!!!!!!!!!!!!!!!!!!!!!!!!!!!s');
+// ['debug', 'log', 'warn', 'error'].forEach((methodName) => {
+//   const originalLoggingMethod = console[methodName];
+//   console[methodName] = (firstArgument, ...otherArguments) => {
+//     const originalPrepareStackTrace = Error.prepareStackTrace;
+//     Error.prepareStackTrace = (_, stack) => stack;
+//     const callee = new Error().stack[1];
+//     Error.prepareStackTrace = originalPrepareStackTrace;
+//     const relativeFileName = path.relative(process.cwd(), callee.getFileName());
+//     const prefix = `${relativeFileName}:${callee.getLineNumber()}:`;
+//     if (typeof firstArgument === 'string') {
+//       originalLoggingMethod(prefix + ' ' + firstArgument, ...otherArguments);
+//     } else {
+//       originalLoggingMethod(prefix, firstArgument, ...otherArguments);
+//     }
+//   };
+// });
+// function trace(s) {
+//   const orig = Error.prepareStackTrace;
+//   Error.prepareStackTrace = (_, stack) => stack;
+//   const err = new Error();
+//   Error.captureStackTrace(err, arguments.callee);
+//   Error.prepareStackTrace = orig;
+//   const callee = err.stack[0];
+//   process.stdout.write(
+//     `${path.relative(
+//       process.cwd(),
+//       callee.getFileName()
+//     )}:${callee.getLineNumber()}: ${s}\n`
+//   );
+// }
+// module.exports = trace;
+
+// trace('hey');
+
+log.setDefaultLevel('trace');
 
 // type MezzoServerPlugin = (mezzo: Mezzo) => void;
 
@@ -151,6 +266,24 @@ export class Mezzo {
       this.server.listen(this.options.port, () => {
         logger.debug(
           `***************Server running on port ${this.options.port} ***************`
+        );
+        console.log('HI');
+        // chalk.blue('Hello world!');
+        // console.log(chalk.blue('Hello world!'));
+        log.debug(
+          `***************[log]Server running on port ${this.options.port} ***************`
+        );
+        log.info(
+          `***************[log]Server running on port ${this.options.port} ***************`
+        );
+        log.warn(
+          `***************[log]Server running on port ${this.options.port} ***************`
+        );
+        log.error(
+          `***************[log]Server running on port ${this.options.port} ***************`
+        );
+        log.trace(
+          `***************[log]Server running on port ${this.options.port} ***************`
         );
         logger.info('Server running on port: ', this.options.port);
 

@@ -6,7 +6,9 @@ import * as getHost from 'rn-host-detect';
 
 import ConnectionManager from './utils/connection-manager';
 import { ClientOptions } from '@caribou-crew/mezzo-interfaces';
+import * as log from 'loglevel';
 
+log.setDefaultLevel('debug');
 /**
  * Don't include the response bodies for images by default.
  */
@@ -32,9 +34,9 @@ export const interceptReactNativeFetch = (pluginConfig: ClientOptions = {}) => {
     ...pluginConfig,
   };
 
+  log.debug(`Attempting to connect`);
   console.log('Using host: ', options.host);
 
-  // mezzoClient.configure({});
   const mezzoClient = createClient(options);
   console.log('Attempting to connect to socket');
 

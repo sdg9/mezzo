@@ -10,6 +10,86 @@ import {
 } from '@caribou-crew/mezzo-interfaces';
 import generateGuid from './utils/generate-guid';
 import serialize from './utils/serialize';
+// import * as log from 'loglevel';
+// import * as logOG from 'loglevel';
+// import * as chalk from 'chalk';
+import { getLogger } from 'loglevel';
+
+const log = getLogger('core-client');
+
+const stackTrace = function () {
+  const obj: any = {};
+  Error.captureStackTrace(obj, stackTrace);
+  return obj.stack;
+};
+
+const getLine = function (stack: any) {
+  const matchResult = stack.match(/\(.*?\)|\s.+/g) || [];
+  const arr = matchResult.map((it: any) => {
+    return it.split(' ').pop().replace(/\(|\)/g, '');
+  });
+  return arr[1] ?? '';
+};
+
+const log2 = function (...args: any) {
+  const stack = stackTrace() || '';
+  const matchResult = getLine(stack);
+  const line = matchResult;
+  for (const i in args) {
+    if (typeof args[i] == 'object') {
+      // util.inspect(arguments[i], false, 2, false)
+      args[i] = JSON.stringify(args[i]);
+    }
+    args[i] += '  ' + line;
+    // args[i] += '  ' + line;
+  }
+
+  // eslint-disable-next-line prefer-spread
+  console.log.apply(console, args);
+  // console.log(args);
+};
+
+log2('Hello world!!!!!!!!!!!!!!!!!!!!!!!!!!!s');
+
+// const getColorFromStr = function (str: any) {
+//   if (str === undefined || str.length == 0) return chalk.white;
+//   let hash = 0,
+//     len;
+//   for (let i = str.length; i--; ) {
+//     hash += str.charCodeAt(i);
+//   }
+//   const chalkColors = [
+//     chalk.red,
+//     chalk.green,
+//     chalk.yellow,
+//     chalk.blue,
+//     chalk.magenta,
+//     chalk.cyan,
+//   ];
+//   return chalkColors[hash % chalkColors.length];
+// };
+
+// // loglevel Plugin to create colorfull log output using 'chalk'
+// const originalFactory = log.methodFactory;
+// const tempLog = log;
+// tempLog.methodFactory = function (methodName, logLevel, loggerName) {
+//   const rawMethod = originalFactory(methodName, logLevel, loggerName);
+//   const logLevelNames = ['TRACE', 'DEBUG', 'INFO ', 'WARN ', 'ERROR'];
+//   const messageColor = getColorFromStr(loggerName); // or getColorFromStr(logLevel)
+
+//   // eslint-disable-next-line @typescript-eslint/no-this-alias
+//   return function (message) {
+//     rawMethod(
+//       chalk.cyan.underline(loggerName) +
+//         ' ' +
+//         chalk.bold.magenta(logLevelNames[logLevel]) +
+//         ' ' +
+//         messageColor(message)
+//     );
+//   };
+// };
+
+log.setDefaultLevel('trace');
 
 const DEFAULT_OPTIONS: ClientOptions = {
   createSocket: undefined,
@@ -95,7 +175,10 @@ export class MezzoClient {
     } = this.options;
 
     const location = `ws://${host}:${port}`;
-    console.log(`Attempting to connect ws to ${location}`);
+    console.log(`CL Attempting to connect ws to ${location}`);
+    log.trace(`This is a trace log Attempting to connect ws to ${location}`);
+    log.error('This is an error log');
+    log.info(`LD Attempting to connect ws to ${location}`);
     console.log('Create socket: ', createSocket);
     if (!createSocket) {
       console.error('You must supply createSocket argument');
@@ -277,6 +360,7 @@ export class MezzoClient {
 }
 
 export function createClient(options?: ClientOptions) {
+  log.debug('Creating client with options: ', options);
   const client = new MezzoClient();
   client.configure(options);
   client.connect();
