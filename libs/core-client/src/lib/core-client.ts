@@ -1,17 +1,16 @@
 import {
+  MEZZZO_WS_API_REQUEST,
+  MEZZZO_WS_API_RESPONSE,
+} from '@caribou-crew/mezzo-constants';
+import {
   ClientOptions,
   MezzoRecordedRequest,
   MezzoRecordedResponse,
   SocketRequestResponseMessage,
 } from '@caribou-crew/mezzo-interfaces';
+import generateGuid from './utils/generate-guid';
 import serialize from './utils/serialize';
-// import * as WebSocket from 'ws';
-// import * as WebSocket from 'ws';
-// import logger, { setLogLevel } from '@caribou-crew/mezzo-utils-logger';
 
-// function createSocket(path) {
-//   return new WebSocket(path);
-// }
 const DEFAULT_OPTIONS: ClientOptions = {
   createSocket: undefined,
   host: 'localhost',
@@ -44,55 +43,6 @@ export interface CustomCommand {
   description?: string;
   args?: CustomCommandArg[];
 }
-
-// export interface MezzoCoreClient {
-// startTimer: () => () => number
-// close: () => void
-// send: (type: any, payload?: any, important?: boolean) => void
-// display: (config?: any) => void
-// reportError: (this: any, error: any) => void
-// onCustomCommand: (config: CustomCommand | string, optHandler?: () => void) => () => void
-// /* Provided by plugins */
-// // API Response Plugin
-// apiResponse?: (request: any, response: any, duration: any) => void
-// // Benchmark Plugin
-// benchmark?: (
-//   title: string
-// ) => {
-//   step: (stepName: string) => void
-//   stop: (stopTitle: string) => void
-//   last: (stopTitle: string) => void
-// }
-// // Clear Plugin
-// clear?: () => void
-// // Image Plugin
-// image?: (options: {
-//   uri: any
-//   preview: any
-//   filename: any
-//   width: any
-//   height: any
-//   caption: any
-// }) => void
-// // Logger Plugin
-// log?: (...args: any[]) => void
-// logImportant?: (...args: any[]) => void
-// debug?: (message: any, important?: boolean) => void
-// warn?: (message: any) => void
-// error?: (message: any, stack: any) => void
-// // State Plugin
-// stateActionComplete?: (name: any, action: any, important?: boolean) => void
-// stateValuesResponse?: (path: any, value: any, valid?: boolean) => void
-// stateKeysResponse?: (path: any, keys: any, valid?: boolean) => void
-// stateValuesChange?: (changes: any) => void
-// stateBackupResponse?: (state: any) => void
-// // REPL Plugin
-// repl?: (name: string, value: object | Function | string | number) => void
-// }
-
-// export interface Core {
-//   connect: any
-// }
 
 export class MezzoClient {
   options: ClientOptions = Object.assign({}, DEFAULT_OPTIONS);
@@ -130,9 +80,6 @@ export class MezzoClient {
 
   public connect() {
     this.isConnected = true;
-    // const protocol = 'ws';
-    // const host = 'localhost';
-    // const port = '8000';
     const {
       createSocket,
       secure,
@@ -146,7 +93,6 @@ export class MezzoClient {
       onConnect,
       onDisconnect,
     } = this.options;
-    // const socket = createSocket(`${protocol}://${host}:${port}`);
 
     const location = `ws://${host}:${port}`;
     console.log(`Attempting to connect ws to ${location}`);
@@ -300,15 +246,19 @@ export class MezzoClient {
     }
   };
 
+  public captureApiRequest = (url: string) => {
+    const guid = generateGuid();
+    console.debug('Firing API request');
+    this.send(MEZZZO_WS_API_REQUEST, { url, guid });
+    return guid;
+  };
+
   public captureApiResponse = (
     request: MezzoRecordedRequest,
     response: MezzoRecordedResponse,
-    duration: number
+    duration: number,
+    guid = generateGuid()
   ) => {
-    // console.log('Planning to send request: ', request);
-    // console.log('Planning to send response: ', response);
-    // console.log('Planning to send duration: ', duration);
-    // this.send('customCommand.hello', { id: 12 }, true);
     const ok =
       response &&
       response.status &&
@@ -317,8 +267,12 @@ export class MezzoClient {
       response.status <= 299;
     const important = !ok;
 
-    console.log({ request, response, duration, important });
-    this.send('api.response', { request, response, duration }, important);
+    console.log({ request, response, duration, important, guid });
+    this.send(
+      MEZZZO_WS_API_RESPONSE,
+      { request, response, duration },
+      important
+    );
   };
 }
 
