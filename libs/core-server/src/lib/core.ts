@@ -111,6 +111,7 @@ export class Mezzo {
       this.fs,
       this.options.mockedDirectory
     );
+
     this.clientUtil = new ClientUtils(this);
 
     this.sessionState = new SessionState();

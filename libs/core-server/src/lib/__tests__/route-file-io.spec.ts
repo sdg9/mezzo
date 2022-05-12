@@ -8,6 +8,7 @@ import {
   X_REQUEST_VARIANT,
 } from '@caribou-crew/mezzo-constants';
 import { fileIOPort } from './testPorts';
+import { getVariantsFromDisk } from '../utils/respondWithFile';
 
 describe('route-file-io', () => {
   let request: SuperTestRequest.SuperTest<SuperTestRequest.Test>;
@@ -404,6 +405,25 @@ describe('route-file-io', () => {
         .get(routePath2)
         .set(X_REQUEST_VARIANT, variant1);
       expect(res2.body).toEqual({ variant: variant1 });
+    });
+  });
+  describe('directory scan of files', () => {
+    it('should get list of variants', async () => {
+      const variants = await getVariantsFromDisk(
+        fs,
+        mockedDirectory,
+        './respondWithVariantReplyFromFile/GET/'
+      );
+      expect(variants).toHaveLength(2);
+    });
+    it('should filter out listed variants', async () => {
+      const variants = await getVariantsFromDisk(
+        fs,
+        mockedDirectory,
+        './respondWithVariantReplyFromFile/GET/',
+        ['default.json']
+      );
+      expect(variants).toHaveLength(1);
     });
   });
 });

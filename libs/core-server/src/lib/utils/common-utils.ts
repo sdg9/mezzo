@@ -1,11 +1,9 @@
 import { Request, Response } from 'express';
 import { Route } from '../models/route-model';
 import { FileHandlerOptions } from '../../types';
-import { getFileContents, getFilePathForRequest } from './filePathUtils';
-import logger from '@caribou-crew/mezzo-utils-logger';
-import { timeout } from './timeoutUtils';
 import * as nodeFs from 'fs';
 import { RouteItemType, VariantItem } from '@caribou-crew/mezzo-interfaces';
+import respondWithFile from './respondWithFile';
 
 export class CommonUtils {
   private _routes: Route[];
@@ -61,45 +59,40 @@ export class CommonUtils {
     res: Response,
     options?: FileHandlerOptions
   ) => {
-    logger.debug(
-      `respond with file for ${route?.method} ${route?.path} of id ${route?.id}`
-    );
-    if (route == null) {
-      return res.status(500).send('Route must be defined to respond from file');
-      // throw new Error('Route must be defined to respond from file');
-      // return;
-    }
-
-    const filePathInfo = await getFilePathForRequest(
+    await respondWithFile(
       this._fs,
       this._mockedDirectory,
       route,
       req,
+      res,
       options
     );
-
-    const sendTypes = ['.txt', '.html'];
-    const imageTypes = ['.png', '.gif', '.pdf', '.jpg', '.jpeg', '.svg'];
-    const statusCode = options?.code ?? 200;
-    const headers = options?.headers ?? {};
-    await timeout(options?.delay ?? 0);
-    if (imageTypes.includes(filePathInfo.mimeType.toLowerCase())) {
-      res.status(statusCode).header(headers).sendFile(filePathInfo.filePath);
-    } else {
-      const rawFileData = await getFileContents(
-        this._fs,
-        filePathInfo.filePath
-      );
-      if (filePathInfo.mimeType === '.json') {
-        res.status(statusCode).header(headers).json(JSON.parse(rawFileData));
-      } else if (sendTypes.includes(filePathInfo.mimeType.toLowerCase())) {
-        res.status(statusCode).header(headers).send(rawFileData);
-      } else {
-        logger.warn(
-          `Filetype ${filePathInfo.mimeType} not officially supported yet`
-        );
-        res.status(statusCode).header(headers).send(rawFileData);
-      }
-    }
+    // try {
+    //   const retVal = await respondWithFile(
+    //     this._fs,
+    //     this._mockedDirectory,
+    //     route,
+    //     req,
+    //     res,
+    //     options
+    //   );
+    //   const { statusCode, headers, filePath, rawFileData, type } = retVal;
+    //   switch (type) {
+    //     case 'image':
+    //       res.status(statusCode).header(headers).sendFile(filePath);
+    //       break;
+    //     case 'json':
+    //       res.status(statusCode).header(headers).json(JSON.parse(rawFileData));
+    //       break;
+    //     case 'raw':
+    //       res.status(statusCode).header(headers).send(rawFileData);
+    //       break;
+    //     default:
+    //       logger.warn(`Type ${type} not officially supported yet`);
+    //       break;
+    //   }
+    // } catch (e) {
+    //   return res.status(500).send('Route must be defined to respond from file');
+    // }
   };
 }
