@@ -16,6 +16,7 @@ import {
 } from '@caribou-crew/mezzo-constants';
 
 import {
+  IMezzoServerPlugin,
   Profile,
   RouteVariant,
   VariantCategory,
@@ -29,10 +30,7 @@ import adminProfileEndpoints from './plugins/profile-endpoints';
 import adminStaticSiteEndpoints from './plugins/static-site-endpoints';
 
 // type MezzoServerPlugin = (mezzo: Mezzo) => Record<string, any>;
-type MezzoServerPlugin = (mezzo: Mezzo) => {
-  name: string;
-  initialize?: () => void;
-};
+export type MezzoServerPlugin = (mezzo: Mezzo) => IMezzoServerPlugin;
 
 export interface MezzoStartOptions {
   port: number | string;
@@ -72,6 +70,7 @@ export class Mezzo {
   };
   public redirect;
   public variantCategories: VariantCategory[] = [];
+  public onStopCallbacks = [];
 
   private _resetRouteState = () => {
     this.userRoutes.length = 0;
@@ -128,6 +127,9 @@ export class Mezzo {
       this.options.plugins.forEach((p) => {
         const plugin = this.use(p);
         plugin?.initialize?.();
+        if (plugin?.onStop) {
+          this.onStopCallbacks.push(plugin.onStop);
+        }
       });
     }
   }
@@ -180,10 +182,7 @@ export class Mezzo {
         logger.debug(
           '***************Stopping Mezzo mocking server ***************'
         );
-        // if (this.websocketServer) {
-        //   logger.debug('Stopping websocket server too');
-        //   this.websocketServer.close();
-        // }
+        this.onStopCallbacks.forEach((i) => i?.());
         serverToStop.close(resolve);
         this.app = undefined;
       } else {
