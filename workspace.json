@@ -65,6 +65,40 @@
       },
       "tags": []
     },
+    "utils-generator": {
+      "root": "libs/utils-generator",
+      "sourceRoot": "libs/utils-generator/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
+          "options": {
+            "lintFilePatterns": ["libs/utils-generator/**/*.ts"]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/libs/utils-generator"],
+          "options": {
+            "jestConfig": "libs/utils-generator/jest.config.ts",
+            "passWithNoTests": true
+          }
+        },
+        "build": {
+          "executor": "@nrwl/js:tsc",
+          "outputs": ["{options.outputPath}"],
+          "options": {
+            "outputPath": "dist/libs/utils-generator",
+            "tsConfig": "libs/utils-generator/tsconfig.lib.json",
+            "packageJson": "libs/utils-generator/package.json",
+            "main": "libs/utils-generator/src/index.ts",
+            "assets": ["libs/utils-generator/*.md"]
+          }
+        }
+      },
+      "tags": []
+    },
     "utils-logger": "libs/utils-logger",
     "workspace": {
       "root": ".",

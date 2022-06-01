@@ -34,6 +34,9 @@
       "@caribou-crew/mezzo-utils-generate-guid": [
         "libs/utils-generate-guid/src/index.ts"
       ],
+      "@caribou-crew/mezzo-utils-generator": [
+        "libs/utils-generator/src/index.ts"
+      ],
       "@caribou-crew/mezzo-utils-logger": ["libs/utils-logger/src/index.ts"],
       "@mezzo/core-client-server-tests": [
         "libs/core-client-server-tests/src/index.ts"
