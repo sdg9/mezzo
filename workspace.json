@@ -29,6 +29,58 @@
       "tags": []
     },
     "core-server": "libs/core-server",
+    "generator-tester": {
+      "root": "apps/generator-tester",
+      "sourceRoot": "apps/generator-tester/src",
+      "projectType": "application",
+      "targets": {
+        "build": {
+          "executor": "@nrwl/node:webpack",
+          "outputs": ["{options.outputPath}"],
+          "options": {
+            "outputPath": "dist/apps/generator-tester",
+            "main": "apps/generator-tester/src/main.ts",
+            "tsConfig": "apps/generator-tester/tsconfig.app.json",
+            "assets": ["apps/generator-tester/src/assets"]
+          },
+          "configurations": {
+            "production": {
+              "optimization": true,
+              "extractLicenses": true,
+              "inspect": false,
+              "fileReplacements": [
+                {
+                  "replace": "apps/generator-tester/src/environments/environment.ts",
+                  "with": "apps/generator-tester/src/environments/environment.prod.ts"
+                }
+              ]
+            }
+          }
+        },
+        "serve": {
+          "executor": "@nrwl/node:node",
+          "options": {
+            "buildTarget": "generator-tester:build"
+          }
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
+          "options": {
+            "lintFilePatterns": ["apps/generator-tester/**/*.ts"]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/apps/generator-tester"],
+          "options": {
+            "jestConfig": "apps/generator-tester/jest.config.ts",
+            "passWithNoTests": true
+          }
+        }
+      },
+      "tags": []
+    },
     "interceptor-react-native-with-reactotron": "libs/interceptor-react-native-with-reactotron",
     "interfaces": "libs/interfaces",
     "utils-generate-guid": {
