@@ -63,6 +63,12 @@
             "buildTarget": "generator-tester:build"
           }
         },
+        "someCustomCommandThatAlsoServes": {
+          "executor": "@nrwl/node:node",
+          "options": {
+            "buildTarget": "generator-tester:build"
+          }
+        },
         "lint": {
           "executor": "@nrwl/linter:eslint",
           "outputs": ["{options.outputFile}"],
