@@ -12,7 +12,7 @@
     "dev": "npm run build:shared-libs && npm run dev:serve",
     "build": "cross-env NODE_ENV=production nx run-many --all --exclude=workspace --target=build",
     "build:executor": "npx tsc tools/executors/buildCoreWithWeb/impl",
-    "build:shared-libs": "nx run-many --target=build --projects=constants,interfaces,core-client,utils-logger,interceptor-react-native-with-reactotron,utils-generate-guid",
+    "build:shared-libs": "nx run-many --all --target=build --exclude=workspace,core-server,admin-web",
     "build:prod": "cross-env NODE_ENV=production nx run-many --all --prod --exclude=workspace --target=build && nx prepare core-server",
     "bumpVersion:ci": "nx run workspace:version",
     "commit": "cz",
